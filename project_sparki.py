@@ -11,8 +11,8 @@ import random
 
 
 COMMAND = {
-	'INIT': 'z'
-	'LINE_FOLLOWING': 's'
+	'INIT': 'z',
+	'LINE_FOLLOWING': 's',
 	'FINISH': 'f'
 }
 def cost(i,j):
@@ -76,29 +76,36 @@ def draw(a, b):
         plt.show(block = False)
 
 
-def grid(obstacle):
-	p = [0]*20
-	g = [p]*20
+def create_grid(obstacle):
+	#g = [[0]*20]*20
+	g = []
+	for i in range(20):
+		g.append([0]*20)
+	#print(g)
 	for i in obstacle:
 		g[i[0]][i[1]] = 1
 	return g
 
-def cost(i,j):
-	x1=i//4
-	y1=i%4
-	x2=j//4
-	y2=j%4
+def cost(i,j,g):
+	x1=i//20
+	y1=i%20
+	x2=j//20
+	y2=j%20
+	#print(x1,y1)
+	#print(x2,y2)
 	if i==j:
 		return 0
-	if (grid[x1][y1] or grid[x2][y2]):#if obstacle		
+	if (g[x1][y1] or g[x2][y2]):#if obstacle		
 		return 99
+	if((abs(x1-x2) == 1) and (abs(y1-y2) == 1)):
+		return 1
 	co = abs(x1-x2)+abs(y1-y2)
 	if co>1:
 		return 99
 	else:
 		return co
 
-def dij(n,v,goal):
+def dij(n,v,goal,g):
 	flag = []
 	dist = []
 	go_to = []
@@ -109,7 +116,6 @@ def dij(n,v,goal):
 		go_to.append(0)
 	dist[goal] = 0
 	count=1
-	print(dist)
 	while(count<=n):
 		mini=99
 		for w in range (n):
@@ -119,19 +125,19 @@ def dij(n,v,goal):
 		flag[u] = 1
 		count = count+1
 		for w in range (n):
-			if (((dist[u]+cost(u,w))<dist[w]) and (not flag[w])):
-				dist[w]= dist[u] + cost(u,w)
+			if (((dist[u]+cost(u,w,g))<dist[w]) and (not flag[w])):
+				dist[w]= dist[u] + cost(u,w,g)
 				go_to[w] = u
 	
 	go_to[goal] = -1
 	route = []
 	while(v != -1):
-		route.append[v]
+		route.append(v)
 		v = go_to[v]
-
+	sqrt_n = int(n**(1/2))
 	grid_route = []
 	for i in route:
-		grid_route.append((i//(n**(1/2)),i%(n**(1/2))))
+		grid_route.append((i//sqrt_n,i%sqrt_n))
 	return grid_route
 
 
@@ -153,7 +159,7 @@ for i in range(1000000):
 
 
 
-
+'''
 com_port = None     # replace with your COM port or /dev/
 
 setDebug(logging.DEBUG)
@@ -163,7 +169,7 @@ while not com_port:
 
 print("initializing")
 init(com_port)
-
+'''
 
 
 
@@ -172,10 +178,18 @@ obstacle = []
 
 obstacle.clear()
 for i in range(10):
-	obstacle.append((random.randint(5,15),random.randint(5,15)))
-groute = dij(400,0,399)
+	obstacle.append((random.randint(2,18),random.randint(2,18)))
+print(obstacle)
+g = create_grid(obstacle)
+for i in g:
+	print(i)
+#print(cost(225,226,g))
+groute = dij(400,0,399,g)
+print(groute)
 draw(groute, obstacle)
-
+while(1):
+	g = 1
+'''
 sendSerial(COMMAND["LINE_FOLLOWING"])
 
 
@@ -202,3 +216,4 @@ while(c != COMMAND["FINISH"]):
 	c = getSerialChar()	
 	wait(0.1)
 plt.close()
+'''
