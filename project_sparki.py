@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-#from sparki_learning import *
+from sparki_learning import *
 
 
 import matplotlib.pyplot as plt
@@ -10,14 +10,14 @@ from scipy.interpolate import spline
 import random
 
 
-def dikstra()
+
 
 
 
 
 def draw(a, b):
         lims = (0,20)
-        plt.ion()
+        #plt.ion()
         #a=[(5,5),(5,6),(6,6),(6,7),(7,7),(7,8),(8,8),(8,9),(9,9),(9,10)]
 
         x = []
@@ -54,13 +54,22 @@ def draw(a, b):
         plt.xlim(lims)
         #plt.axis('off')
 
-        plt.show()        
+        plt.show(block = False)
+
+        
 
 
 
 
 
-
+draw([(5,5),(5,6),(6,6),(6,7),(7,7),(7,8),(8,8),(8,9),(9,9),(9,10)],[(1,3),(6,2)])
+for i in range(1000000):
+	if(i == 500000):
+		plt.close()
+	print(i)
+draw([(5,5),(5,6),(6,6),(6,7),(7,7),(7,8),(8,8),(8,9),(9,9),(9,10)],[(7,3),(3,8)])
+for i in range(1000000):
+        	print(i)
 
 
 

@@ -3,8 +3,11 @@
 #define LINE_FOLLOWING 1
 #define STANDBY 2
 #define serial Serial1
+
 const char TERMINATOR = (char)23;  
+const char SYNC = (char)22; 
 const char* SPARKI_MYRO_VERSION = "1.1.3r1"; 
+
 int action = COMMAND_INIT;
 unsigned long startOfLoop; // Time since start of program, calculated at each loop beginning
 const float pi = 3.1415926;
@@ -78,6 +81,12 @@ void initSparki() {
   sparki.updateLCD();
   sendSerial( (char*)SPARKI_MYRO_VERSION );
 } 
+
+void sendSync() {
+//  printDebug(".", DEBUG_DEBUG);
+  serial.print(SYNC);
+  serial.flush();
+}
 
 void setup() 
 {
