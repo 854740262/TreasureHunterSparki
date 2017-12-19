@@ -35,7 +35,7 @@ def cost(i,j):
 
 
 def draw(a, b):
-        lims = (0,20)
+        lims = (-2,20)
         #plt.ion()
         #a=[(5,5),(5,6),(6,6),(6,7),(7,7),(7,8),(8,8),(8,9),(9,9),(9,10)]
 
@@ -104,6 +104,20 @@ def cost(i,j,g):
 		return 99
 	else:
 		return co
+
+def create_hazard(obstacle):
+	hazard = []
+	#print(obstacle[0])
+	hazard.append((obstacle[0]-1,obstacle[1]-1))
+	hazard.append((obstacle[0]-1,obstacle[1]))
+	hazard.append((obstacle[0]-1,obstacle[1]+1))
+	hazard.append((obstacle[0]+1,obstacle[1]+1))
+	hazard.append((obstacle[0]+1,obstacle[1]))
+	hazard.append((obstacle[0]+1,obstacle[1]-1))
+	hazard.append((obstacle[0],obstacle[1]+1))
+	hazard.append((obstacle[0],obstacle[1]))
+	hazard.append((obstacle[0],obstacle[1]-1))
+	return hazard
 
 def dij(n,v,goal,g):
 	flag = []
@@ -174,13 +188,21 @@ init(com_port)
 
 
 obstacle = []
+hazard = []
 
 
 obstacle.clear()
+hazard.clear()
 for i in range(10):
-	obstacle.append((random.randint(2,18),random.randint(2,18)))
+	obstacle.append((random.randint(2,17),random.randint(2,17)))
 print(obstacle)
-g = create_grid(obstacle)
+
+for i in obstacle:
+	h = create_hazard(i)
+	for j in h:
+		hazard.append(j)
+
+g = create_grid(hazard)
 for i in g:
 	print(i)
 #print(cost(225,226,g))
