@@ -1,6 +1,3 @@
-#ifndef Sparki_Myro_h
-#define Sparki_Myro_h
-
 
 #include <Sparki.h> // include the sparki library
 
@@ -16,10 +13,9 @@ const char TERMINATOR = (char)23;
 const char SYNC = (char)22;   
 
 /* ***** COMMAND CHARACTER CODES ***** */
-const char COMMAND_INIT = 'z';  
-const char COMMAND_LINE_FOLLOWING = 's'
-const char COMMAND_STANDBY = 'b'
-
+const char COMMAND_INIT = 'z';
+const char COMMAND_LINE_FOLLOWING = 's';
+const char COMMAND_STANDBY = 'b';
 
 /* ***** SERIAL PORT FOR BLUETOOTH ***** */
 #define serial Serial1
@@ -107,8 +103,7 @@ void sendSync() {
 
 void setup() 
 {
-  setStatusLED(50);
-  sparki.clearLCD();
+    sparki.clearLCD();
   sparki.servo(SERVO_CENTER); 
   serial.begin(9600);
 }
@@ -166,7 +161,7 @@ void loop() {
   startOfLoop = millis();
   if (serial.available()) {
     char inByte = getSerialChar();
-    if(inByte == '') inByte = action;
+    if(!inByte) inByte = action;
     switch (inByte) {
       case COMMAND_INIT:                // no args; returns a char
         initSparki();
@@ -176,8 +171,8 @@ void loop() {
         line_following();
         action = COMMAND_LINE_FOLLOWING;
         break;
-      case: COMMAND_STANDBY:
-        spark.moveStop();
+      case COMMAND_STANDBY:
+        sparki.moveStop();
         action = COMMAND_STANDBY;
         break;
       default:
