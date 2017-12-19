@@ -1,14 +1,31 @@
+#ifndef Sparki_Myro_h
+#define Sparki_Myro_h
+
+
 #include <Sparki.h> // include the sparki library
-#define COMMAND_INIT 0
-#define LINE_FOLLOWING 1
-#define STANDBY 2
+
+
+/* ########### CONSTANTS ########### */
+/* ***** VERSION NUMBER ***** */
+const char* SPARKI_MYRO_VERSION = "1.1.3r1";   
+
+/* ***** MESSAGE TERMINATOR ***** */
+const char TERMINATOR = (char)23;  
+
+/* ***** ACTION TERMINATOR ***** */
+const char SYNC = (char)22;   
+
+/* ***** COMMAND CHARACTER CODES ***** */
+const char COMMAND_INIT = 'z';  
+const char COMMAND_LINE_FOLLOWING = 's'
+const char COMMAND_STANDBY = 'b'
+
+
+/* ***** SERIAL PORT FOR BLUETOOTH ***** */
 #define serial Serial1
 
-const char TERMINATOR = (char)23;  
-const char SYNC = (char)22; 
-const char* SPARKI_MYRO_VERSION = "1.1.3r1"; 
+char action = COMMAND_STANDBY;
 
-int action = COMMAND_INIT;
 unsigned long startOfLoop; // Time since start of program, calculated at each loop beginning
 const float pi = 3.1415926;
 
@@ -90,77 +107,88 @@ void sendSync() {
 
 void setup() 
 {
+  setStatusLED(50);
+  sparki.clearLCD();
+  sparki.servo(SERVO_CENTER); 
+  serial.begin(9600);
 }
+
+void line_following(){
+  lineLeft   = sparki.lineLeft();   // measure the left IR sensor
+  lineCenter = sparki.lineCenter(); // measure the center IR sensor
+  lineRight  = sparki.lineRight();  // measure the right IR sensor
+  if ( lineCenter > threshold && lineLeft > threshold && lineRight > threshold){
+    sparki.moveRight(180);
+    theta = theta - pi;
+    sparki.moveStop();
+    action = COMMAND_STANDBY;
+    sendSerial('f');
+  }
+  
+  if ( lineCenter < threshold ) // if line is below left line sensor
+  {  
+    sparki.moveForward(); // move forward
+    posX += cos(theta) * (speedMotor * 0.1);
+    posY += sin(theta) * (speedMotor * 0.1);
+  }
+  else{
+    if ( lineLeft < threshold ) // if line is below left line sensor
+    {  
+      sparki.moveLeft(); // turn left
+      theta += 2.0 * (speedMotor * 0.1) / lengthAxle;
+    }
+  
+    if ( lineRight < threshold ) // if line is below right line sensor
+    {  
+      sparki.moveRight(); // turn right
+      theta -= 2.0 * (speedMotor * 0.1) / lengthAxle;
+    }
+  }
+
+  sparki.clearLCD(); // wipe the screen
+  
+  sparki.print("X-position: "); // show left line sensor on screen
+  sparki.println(posX);
+  
+  sparki.print("Y-position: "); // show center line sensor on screen
+  sparki.println(posY);
+  
+  sparki.print("Theta: "); // show right line sensor on screen
+  sparki.println((theta / pi) * 180.0);
+
+  
+  sparki.updateLCD(); // display all of the information written to the screen
+}
+
+
  
 void loop() {
   startOfLoop = millis();
-  
-  switch (action) {
-    case COMMAND_INIT:                // no args; returns a char
-      if (serial.available()) {
-        char inByte = getSerialChar();
-      }
-      if(inByte == 'z')
-        initSparki();                   // sendSerial is done in the function
-      break;
-    case LINE_FOLLOWING:
-      lineLeft   = sparki.lineLeft();   // measure the left IR sensor
-      lineCenter = sparki.lineCenter(); // measure the center IR sensor
-      lineRight  = sparki.lineRight();  // measure the right IR sensor
-      if ( lineCenter > threshold && lineLeft > threshold && lineRight > threshold){
-        sparki.moveRight(180);
-        theta = theta - pi;
-        sparki.moveStop();
-        action = STANBY;
-      }
-      
-      if ( lineCenter < threshold ) // if line is below left line sensor
-      {  
-        sparki.moveForward(); // move forward
-        posX += cos(theta) * (speedMotor * 0.1);
-        posY += sin(theta) * (speedMotor * 0.1);
-      }
-      else{
-        if ( lineLeft < threshold ) // if line is below left line sensor
-        {  
-          sparki.moveLeft(); // turn left
-          theta += 2.0 * (speedMotor * 0.1) / lengthAxle;
-        }
-      
-        if ( lineRight < threshold ) // if line is below right line sensor
-        {  
-          sparki.moveRight(); // turn right
-          theta -= 2.0 * (speedMotor * 0.1) / lengthAxle;
-        }
-      }
+  if (serial.available()) {
+    char inByte = getSerialChar();
+    if(inByte == '') inByte = action;
+    switch (inByte) {
+      case COMMAND_INIT:                // no args; returns a char
+        initSparki();
+        action = COMMAND_STANDBY;   
+        break;
+      case COMMAND_LINE_FOLLOWING:
+        line_following();
+        action = COMMAND_LINE_FOLLOWING;
+        break;
+      case: COMMAND_STANDBY:
+        spark.moveStop();
+        action = COMMAND_STANDBY;
+        break;
+      default:
+        sparki.print("Bad input");
+        sparki.updateLCD();
+        break;
     
-      sparki.clearLCD(); // wipe the screen
-      
-      sparki.print("X-position: "); // show left line sensor on screen
-      sparki.println(posX);
-      
-      sparki.print("Y-position: "); // show center line sensor on screen
-      sparki.println(posY);
-      
-      sparki.print("Theta: "); // show right line sensor on screen
-      sparki.println((theta / pi) * 180.0);
-
-      
-      sparki.updateLCD(); // display all of the information written to the screen
-      
-      while (millis() < startOfLoop + 100){
-        // Wait and do nothing, this is used to ensure Sparki was moving for 100 msec
-      }
-      break;
-    case STANDBY:
-      sendSerial(1);
-      int g = getSerialInt();
-      action = LINE_FOLLOWING;
-      
-      
-      
-
-
-
-
+    }
+  }
+  sendSync();
+  while (millis() < startOfLoop + 100){
+    // Wait and do nothing, this is used to ensure Sparki was moving for 100 msec
+  }
 }
