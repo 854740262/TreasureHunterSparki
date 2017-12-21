@@ -35,7 +35,7 @@ def cost(i,j):
 
 
 def draw(a, b):
-        lims = (-2,20)
+        
         #plt.ion()
         #a=[(5,5),(5,6),(6,6),(6,7),(7,7),(7,8),(8,8),(8,9),(9,9),(9,10)]
 
@@ -54,12 +54,12 @@ def draw(a, b):
 
 
 
-        x_smooth = np.linspace(x.min(),x.max(),300)
-        y_smooth = spline(x,y, x_smooth)
+        #x_smooth = np.linspace(x.min(),x.max(),300)
+        #y_smooth = spline(x,y, x_smooth)
 
 
 
-        fig1 = plt.figure(figsize=(13,8))
+        fig1 = plt.figure(figsize=(20,7))
         ax1 = fig1.add_subplot(111, aspect='equal')
 
         #for j in range(0,2):
@@ -67,11 +67,11 @@ def draw(a, b):
         for j in b:
                 ax1.add_patch(patches.Rectangle((j[0],j[1]),1,1,facecolor='red'))
         
-        ax1.plot(x_smooth,y_smooth,linewidth=30.0, color="black")
+        ax1.plot(x,y,linewidth=30.0, color="black")
 
-        plt.ylim(lims)
-        plt.xlim(lims)
-        #plt.axis('off')
+        plt.ylim((-1,20))
+        plt.xlim((-1,20))
+        plt.axis('off')
 
         plt.show(block = False)
 
@@ -107,16 +107,12 @@ def cost(i,j,g):
 
 def create_hazard(obstacle):
 	hazard = []
-	#print(obstacle[0])
-	hazard.append((obstacle[0]-1,obstacle[1]-1))
-	hazard.append((obstacle[0]-1,obstacle[1]))
-	hazard.append((obstacle[0]-1,obstacle[1]+1))
-	hazard.append((obstacle[0]+1,obstacle[1]+1))
-	hazard.append((obstacle[0]+1,obstacle[1]))
-	hazard.append((obstacle[0]+1,obstacle[1]-1))
-	hazard.append((obstacle[0],obstacle[1]+1))
-	hazard.append((obstacle[0],obstacle[1]))
-	hazard.append((obstacle[0],obstacle[1]-1))
+	index =[]
+	for i in range(-2,3):
+		for j in range(-2,3):
+			index.append((i,j))
+	for i in index:
+		hazard.append((obstacle[0]+i[0],obstacle[1]+i[1]))
 	return hazard
 
 def dij(n,v,goal,g):
@@ -155,36 +151,16 @@ def dij(n,v,goal,g):
 	return grid_route
 
 
-'''
-draw([(5,5),(5,6),(6,6),(6,7),(7,7),(7,8),(8,8),(8,9),(9,9),(9,10)],[(1,3),(6,2)])
-for i in range(1000000):
-	if(i == 500000):
-		plt.close()
-	print(i)
-draw([(5,5),(5,6),(6,6),(6,7),(7,7),(7,8),(8,8),(8,9),(9,9),(9,10)],[(7,3),(3,8)])
-for i in range(1000000):
-        	print(i)
-
-'''
 
 
 
-
-
-
-
-'''
 com_port = None     # replace with your COM port or /dev/
-
-setDebug(logging.DEBUG)
 
 while not com_port:
     com_port = input("What is your com port or /dev/? ")
 
 print("initializing")
 init(com_port)
-'''
-
 
 
 obstacle = []
@@ -194,7 +170,7 @@ hazard = []
 obstacle.clear()
 hazard.clear()
 for i in range(10):
-	obstacle.append((random.randint(2,17),random.randint(2,17)))
+	obstacle.append((random.randint(3,16),random.randint(3,16)))
 print(obstacle)
 
 for i in obstacle:
@@ -205,37 +181,56 @@ for i in obstacle:
 g = create_grid(hazard)
 for i in g:
 	print(i)
-#print(cost(225,226,g))
 groute = dij(400,0,399,g)
 print(groute)
+
+groute = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 1), (11, 2), (11, 3), (11, 4), (11, 5), (12, 6), (13, 7), (14, 8), (15, 9), (16, 10), (17, 11), (18, 12), (19, 13), (19, 14), (19, 15), (19, 16), (19, 17), (18, 18), (19, 19)]
+obstacle = [(8, 15), (3, 16), (8, 12), (8, 7), (8, 4), (10, 13), (3, 9), (11, 16), (16, 15), (16, 5)]
+
+
 draw(groute, obstacle)
-while(1):
-	g = 1
-'''
+
+
 sendSerial(COMMAND["LINE_FOLLOWING"])
 
 
 c = getSerialChar()
 while(c != COMMAND["FINISH"]):
-	c = getSerialChar()	
+	c = getSerialChar()
 	wait(0.1)
 plt.close()
 
 
 
+
+obstacle = []
+hazard = []
 
 
 obstacle.clear()
+hazard.clear()
 for i in range(10):
-	obstacle.append((random.randint(5,15),random.randint(5,15)))
-groute = dij(400,399,0)
+	obstacle.append((random.randint(3,16),random.randint(3,16)))
+print(obstacle)
+
+for i in obstacle:
+	h = create_hazard(i)
+	for j in h:
+		hazard.append(j)
+
+g = create_grid(hazard)
+for i in g:
+	print(i)
+groute = dij(400,0,399,g)
+print(groute)
 draw(groute, obstacle)
+
 
 sendSerial(COMMAND["LINE_FOLLOWING"])
 
+c = 0
 c = getSerialChar()
 while(c != COMMAND["FINISH"]):
-	c = getSerialChar()	
+	c = getSerialChar()
 	wait(0.1)
 plt.close()
-'''

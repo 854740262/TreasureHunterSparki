@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from sparki_learning import *
+#from sparki_learning import *
 
 
 import matplotlib.pyplot as plt
@@ -70,26 +70,26 @@ def draw(a, b):
         ax1.plot(x,y,linewidth=30.0, color="black")
 
         plt.ylim((-1,20))
-        plt.xlim((-1,40))
-        #plt.axis('off')
+        plt.xlim((-1,20))
+        plt.axis('off')
 
-        plt.show(block = False)
+        plt.show()
 
 
 def create_grid(obstacle):
 	#g = [[0]*20]*20
 	g = []
 	for i in range(20):
-		g.append([0]*40)
+		g.append([0]*20)
 	#print(g)
 	for i in obstacle:
-		g[i[1]][i[0]] = 1
+		g[i[0]][i[1]] = 1
 	return g
 
 def cost(i,j,g):
-	x1=i//40
+	x1=i//20
 	y1=i%20
-	x2=j//40
+	x2=j//20
 	y2=j%20
 	#print(x1,y1)
 	#print(x2,y2)
@@ -145,24 +145,10 @@ def dij(n,v,goal,g):
 		route.append(v)
 		v = go_to[v]
 	sqrt_n = int(n**(1/2))
-	print(route)
 	grid_route = []
 	for i in route:
 		grid_route.append((i//sqrt_n,i%sqrt_n))
 	return grid_route
-
-
-
-
-'''
-com_port = None     # replace with your COM port or /dev/
-
-while not com_port:
-    com_port = input("What is your com port or /dev/? ")
-
-print("initializing")
-init(com_port)
-'''
 
 obstacle = []
 hazard = []
@@ -171,7 +157,7 @@ hazard = []
 obstacle.clear()
 hazard.clear()
 for i in range(10):
-	obstacle.append((random.randint(3,36),random.randint(3,16)))
+	obstacle.append((random.randint(3,16),random.randint(3,16)))
 print(obstacle)
 
 for i in obstacle:
@@ -182,37 +168,17 @@ for i in obstacle:
 g = create_grid(hazard)
 for i in g:
 	print(i)
-groute = dij(800,0,799,g)
-#print(groute)
+groute = dij(400,0,399,g)
+print(groute)
+
 draw(groute, obstacle)
 
-while(1):
-	c = 1
-'''
-sendSerial(COMMAND["LINE_FOLLOWING"])
-
-
-c = getSerialChar()
-while(c != COMMAND["FINISH"]):
-	c = getSerialChar()
-	wait(0.1)
-plt.close()
-'''
 
 '''
+with open('graph2.txt', 'a') as out:
+    out.write('groute = '+ str(groute)+'\n')
+    out.write('obstacle = '+str(obstacle)+'\n')
 
 
-obstacle.clear()
-for i in range(10):
-	obstacle.append((random.randint(5,15),random.randint(5,15)))
-groute = dij(400,399,0)
-draw(groute, obstacle)
-
-sendSerial(COMMAND["LINE_FOLLOWING"])
-
-c = getSerialChar()
-while(c != COMMAND["FINISH"]):
-	c = getSerialChar()	
-	wait(0.1)
-plt.close()
+plt.savefig('testplot2.png')
 '''
